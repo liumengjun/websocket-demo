@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Demo</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+</head>
+<body>
+
+<div>
+    WebSocket Demo:
+</div>
+
+<div id="ws-content">
+</div>
+
+<div>
+    <input id="text" type="text"/>
+    <button onclick="send()">发送消息</button>
+    <hr/>
+    <button onclick="closeWebSocket()">关闭WebSocket连接</button>
+    <hr/>
+    <div id="message"></div>
+    <div id="status"></div>
+</div>
+
+</body>
+
+<script>
+    var wsContent = document.getElementById('ws-content');
+    var sock = new SockJS('http://localhost:6767/myHandler');
+    var counter = 0;
+    sock.onopen = function () {
+        console.log('open');
+        wsContent.innerHTML = 'open';
+        sock.send('test');
+    };
+
+    sock.onmessage = function (e) {
+        console.log('message', e.data);
+        wsContent.innerHTML = e.data;
+        counter++;
+        if (counter >= 10) {
+            sock.close();
+        }
+    };
+
+    sock.onclose = function () {
+        console.log('close');
+        wsContent.innerHTML = 'close';
+    };
+</script>
+
+<script type="text/javascript">
+    var wsMsg = document.getElementById('message');
+    var wsSt = document.getElementById('status');
+    var websocket = null;
+    //判断当前浏览器是否支持WebSocket
+    if ('WebSocket' in window) {
+        websocket = new WebSocket("ws://localhost:6767/websocket");
+    }
+    else {
+        alert('当前浏览器 Not support websocket')
+    }
+
+    //连接发生错误的回调方法
+    websocket.onerror = function () {
+        wsMsg.innerHTML = ("WebSocket连接发生错误");
+    };
+
+    //连接成功建立的回调方法
+    websocket.onopen = function () {
+        wsSt.innerHTML = ("WebSocket连接成功");
+    }
+
+    //接收到消息的回调方法
+    websocket.onmessage = function (event) {
+        wsMsg.innerHTML += (event.data)+"<br>";
+    }
+
+    //连接关闭的回调方法
+    websocket.onclose = function () {
+        wsSt.innerHTML = ("WebSocket连接关闭");
+    }
+
+    //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+    window.onbeforeunload = function () {
+        closeWebSocket();
+    }
+
+    //关闭WebSocket连接
+    function closeWebSocket() {
+        websocket.close();
+    }
+
+    //发送消息
+    function send() {
+        var message = document.getElementById('text').value;
+        try {
+            websocket.send(message);
+        } catch(ex) {
+            wsMsg.innerHTML += ex.message+"<br>";
+        }
+    }
+</script>
+</html>
