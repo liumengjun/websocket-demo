@@ -28,7 +28,13 @@ public class WebSocketConfig implements WebSocketConfigurer {
          * ws://localhost:6767/myHandler 也有效
          */
         registry.addHandler(myHandler(), "/myHandler")
-            .addInterceptors(new HttpSessionHandshakeInterceptor());
+            .addInterceptors(new HttpSessionHandshakeInterceptor())
+            .withSockJS()
+            .setStreamBytesLimit(512 * 1024)
+            .setSessionCookieNeeded(true)
+            .setHeartbeatTime(5 * 1000)
+            // .setDisconnectDelay(30 * 1000)
+            .setHttpMessageCacheSize(1000);
     }
 
     @Bean
