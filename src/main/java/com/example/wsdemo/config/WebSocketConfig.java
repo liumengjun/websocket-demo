@@ -24,6 +24,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        /*
+         * ws://localhost:6767/myHandler 也有效
+         */
         registry.addHandler(myHandler(), "/myHandler")
             .addInterceptors(new HttpSessionHandshakeInterceptor());
     }
@@ -35,7 +38,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     /**
      * If you want to use @ServerEndpoint in a Spring Boot application that used an embedded container, you must declare a single ServerEndpointExporter @Bean
-     * @return
+     *
+     * so {@link WebSocketTest} is valid ws controller, can be conn by ws://localhost:6767/websocket
      */
     @Bean
     public ServerEndpointExporter serverEndpointExporter() {
